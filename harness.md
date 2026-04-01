@@ -25,3 +25,27 @@
 ## 5. 인지적 권한과 경계 준수 (Scope Limitation)
 - **규칙**: 각 페르소나는 자신에게 할당된 도메인(영역) 밖의 시스템을 임의로 건드려서는 안 된다.
 - **실행**: 예컨대, 설계(Architect) 에이전트가 직접 C++ 구현 코드를 뜯어고치거나, 개발(C++ Specialist) 에이전트가 DB 마이그레이션 스키마를 단독으로 수정하지 않는다. 다른 영역의 수정이 수반되어야 할 때는 즉각 해당 수정 사항을 PM에게 리포트하고 알맞은 페르소나에게 작업을 인계(Handoff)해야 한다.
+
+## 6. 대규모 C++ 리팩토링 시 Python 스크립트 패턴 활용 (Large-Scale Refactoring via Script)
+- **규칙**: 여러 파일에 걸쳐 광범위한 문자열 치환·구조 변경이 필요할 때, 직접 `multi_replace_file_content` 툴을 반복 호출하지 않는다.
+- **실행**: 치환 로직을 담은 Python 스크립트를 `/root/repos/dms/` 경로 아래(임시 파일)에 작성하고 일괄 실행한 뒤, 반드시 `make` 빌드로 결과를 검증한다. 스크립트에서 Python 문자열 escape와 C++ 문자열 escape가 충돌하지 않도록 raw 문자열(`r"""..."""`)이나 명시적 `\\n` 치환을 사용한다.
+
+## 7. 참조 모듈 벤치마킹 명시 (Reference Module Anchoring)
+- **규칙**: 동일 프로젝트 내에 유사한 구현 사례가 이미 존재할 경우, 새 설계를 처음부터 작성하지 않고 그 참조 모듈을 먼저 정독한다.
+- **실행**: `ACTIVE_TASK.md`의 설계 명세에 `[참조 모듈]` 항목으로 경로를 명시하고, 로깅 구조·설정 파싱·종료 절차 등의 패턴을 직접 대조한 뒤에 코딩을 시작한다. (예: `DGS/tsSenderCurlMulti`를 LGCNS 리팩토링의 골드 스탠다드로 활용)
+
+## 8. Git 커밋 프로토콜 준수 (Git Commit Protocol)
+- **규칙**: AI 에이전트는 코드 작업 완료 후 임의로 자동 커밋하지 않으며, 반드시 사용자(Human)의 승인을 받아야 한다.
+- **실행**: 
+  - 작업 완료 시, `git status`와 `get_changed_files`로 변경사항을 먼저 확인하고 사용자에게 보고한다.
+  - 커밋 메시지는 반드시 **Conventional Commits** 형식을 따른다:
+    - 제목 라인: 영문으로 작성 (예: `feat: Implement async messaging with curl multi`)
+    - 본문: 한글로 상세 작성 (주요 변경사항, 기술 스택, 빌드 정보 등)
+    - 타입: `feat`(기능), `fix`(버그수정), `refactor`(리팩토링), `docs`(문서), `test`(테스트), `chore`(기타)
+  - 커밋 전 민감정보(비밀번호, API 키, 실제 전화번호 등) 포함 여부를 반드시 점검한다.
+  - 사용자가 "커밋해줘" 또는 "git 커밋" 등 명시적인 요청을 할 때만 `git add` 및 `git commit` 명령을 실행한다.
+## 9. 파운데이션 헤더 수정 가드레일 (Foundation Header Guardrails)
+- **규칙**: `lib/include/Config.h`, `share/m2msPacket.h` 등 프로젝트 전역에 영향을 미치는 핵심 헤더를 수정할 때는 극도의 주의를 기울인다.
+- **실행**:
+  - 핵심 헤더의 구조체(struct), 타이프데프(typedef) 등을 변경할 경우, 반드시 해당 헤더를 참조하는 전체 모듈(mmts, mmrs, mmalert 등)을 `make clean; make` 하여 ABI 호환성 및 링킹(Linking) 이슈를 사전에 검증한다.
+  - 사소한 변경(예: `const` 추가)이라도 심볼 맹글링(Symbol mangling)을 변화시켜 런타임 오류나 링크 에러를 유발할 수 있으므로, 변경 전후의 영향 범위를 `grep_search` 등으로 전수 조사하고 PM에게 보고한다.
