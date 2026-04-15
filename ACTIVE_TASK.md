@@ -1,15 +1,20 @@
-# ACTIVE TASK: DMS 시스템 안정화 및 빌드 검증 🚀 **[진행 중]**
-1. **tsSenderCurlMulti (LGCNS) 현대화**: 비동기 I/O 적용 및 테스트 완료 — **[완료]**
-2. **전역 빌드 복구**: `Config.h` ABI 충돌 이슈 해결 및 전체 모듈 재빌드 성공 — **[완료]**
-3. **AI 규칙(.airules) 고도화**: 레거시 경로 정리 및 핵심 헤더 수정 가드레일 보강 — **[진행 중]**
+# ACTIVE TASK: 중기 과제 목록
 
-## 현재 목표
-- 이전 LGCNS 현대화 작업의 성공적인 마무리와 더불어, 발생했던 전역 빌드 이슈에 대한 재발 방지책 마련.
-- `.airules/` 내의 가이드라인과 워크플로우를 최신 구조에 맞게 정비하여 향후 작업의 일관성 확보.
+## ImageServer 중기 개선 과제
 
-## 개선 내역
-- **harness.md (Rule 9 추가)**: `Config.h`와 같은 파운데이션 헤더 수정 시 전체 모듈에 대한 `make clean; make` 및 영향도 조사를 강제하는 가드레일 도입.
-- **워크플로우 정규화**: `.agent` → `.airules` 경로 일괄 변경 및 명령어별 페르소나 매핑 최신화.
-- **DMS 빌드 정상화**: `mmIdleAlert` 등 꼬였던 오브젝트 캐시를 수동으로 제거하고 전체 프로젝트 링크 성공 확인.
+### Phase 3 — 코드 품질
 
-- 대상 폴더: `/root/repos/dms/.airules`
+| # | 이슈 | 수정 내용 |
+|---|------|-----------|
+| M1 | 매직 넘버 | `constexpr` 상수로 추출 (`HASH_HEX_LEN`, `TIMESTAMP_LEN` 등) |
+| M2 | 에러 처리 정책 혼재 | null 파라미터 → 예외, "미발견" → false, I/O 실패 → 예외 로 통일 |
+| M3 | `addImage` 73줄 | 내부 헬퍼 메서드로 분리 |
+
+### Adversarial Review 잔류 항목
+
+| # | 위치 | 이슈 | 비고 |
+|---|------|------|------|
+| A3 | `FileBlobStorage.cpp:125` | `ext` 미검증 → 경로 주입 가능 | 운영 재량으로 보류 |
+| B1 | `unlink` 상대경로 의존 | 프로세스 CWD 고정 운영 시 실질 위험 낮음 | |
+| B2 | `getImageItem()` O(N) 풀 스캔 | 추후 SQLite 또는 carrierId 기반 hashmap 전환 | |
+| B3 | `findByHashInternal()` thundering herd | 단일 인스턴스 구조에서 즉각 위험 없음 | |

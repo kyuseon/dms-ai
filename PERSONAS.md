@@ -11,6 +11,7 @@
 | **C++ Specialist** | [personas/cpp_specialist.md](personas/cpp_specialist.md) | 레거시 C++ 모듈 구현, 성능 최적화, 인코딩 처리 |
 | **DBA** | [personas/dba.md](personas/dba.md) | DB 스키마 설계, SQL 최적화, 데이터 마이그레이션 |
 | **DevOps Engineer** | [personas/devops.md](personas/devops.md) | 빌드 스크립트(Makefile), 배포(shell), 시스템 의존성 관리 |
+| **Red Team** | [personas/redteam.md](personas/redteam.md) | 보안 취약점 발견, 코드 품질 검증, Edge Case 테스트, 성능 분석 |
 
 ## 사용 방법
 
@@ -23,6 +24,7 @@ Gemini에게 특정 역할을 맡기고 싶을 때 다음과 같이 슬래시 �
 | **`/개발`** | C++ Specialist | 코드 구현, 버그 수정, 성능 최적화, 인코딩 |
 | **`/디비`** | DBA | 데이터베이스 설계, SQL 쿼리, 마이그레이션 |
 | **`/운영`** | DevOps | 빌드, 배포 스크립트, 시스템 환경 설정 |
+| **`/redteam`** (또는 **`/보안`**) | Red Team | 보안 취약점 분석, 코드 품질 검증, Edge Case 발견 |
 
 ## 🎯 작업 포커스 관리
 
